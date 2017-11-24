@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 const PostSchema = new Schema({
   _id: String,
+  hashtag: String,
   url: String,
   service: String,
   username: String,
@@ -25,6 +26,9 @@ const Post = mongoose.model('post', PostSchema);
  *       _id:
  *         type: string
  *         default: objectId
+ *       hashtag:
+ *         type: string
+ *         default: HASHTAG
  *       url:
  *         type: string
  *         default: URL

@@ -6,7 +6,7 @@ import { swagDocHandler } from '../utils';
 const router = new express.Router();
 
 router.get('/', async (req, res) => {
-  res.send({ msg: 'HELLO WORLD' });
+  res.send({ msg: 'Success' });
 });
 
 // return swagger doc json data.
