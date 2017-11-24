@@ -7,8 +7,8 @@ const config = {
     mongodb: {
       host: 'mongodb',
       database: 'fyap-social',
-      user: 'userR5B',
-      password: 'NVGtqTX28wFnUvLp'
+      user: 'user0OD',
+      password: 'q6eF6SSMHWaG3mj4'
     }
   }
 };
