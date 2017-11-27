@@ -1,7 +1,7 @@
 const env = process.env.NODE_ENV;
 const MONGODB_USER = process.env.MONGODB_USER;
 const MONGODB_ROUTE = process.env.MONGODB_ROUTE;
-const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
+const MONGODB_ADMIN_PASSWORD = process.env.MONGODB_PASSWORD;
 
 const common = {
   port: 8080
@@ -15,8 +15,8 @@ const config = {
   },
   production: {
     mongodb: {
-      user: MONGODB_USER,
-      password: MONGODB_PASSWORD,
+      user: 'admin',
+      password: MONGODB_ADMIN_PASSWORD,
       host: MONGODB_ROUTE,
       database: 'fyap-social'
     }
