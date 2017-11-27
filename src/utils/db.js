@@ -3,10 +3,6 @@ import log from 'log';
 import config from '../config';
 
 const { host, database, user, password } = config.mongodb;
-console.log(host);
-console.log(database);
-console.log(user);
-console.log(password);
 
 let status = 'DISCONNETED';
 
@@ -14,7 +10,7 @@ const init = () => {
   if (status === 'DISCONNETED') {
     let mongoUrl = `mongodb://${host}/${database}`;
     if (user && password) {
-      mongoUrl = `mongodb://${user}:${password}@${host}:27017/${database}?authSource=admin`;
+      mongoUrl = `mongodb://${user}:${password}@${host}:27017/${database}`;
     }
     mongoose.connect(mongoUrl);
     status = 'CONNECTING';
