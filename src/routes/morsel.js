@@ -29,12 +29,18 @@ const router = new express.Router();
  *                 $ref: '#/definitions/Morsel'
  */
 router.get('/', async (req, res) => {
-  const hashtag = req.query.hashtag;
-  let limit = req.query.limit;
-  try {
-      limit = parseInt(limit);
-  } catch(err) {
-      limit = 30;
+  const hashtag = 'fuckyouajitpai';
+  let limit = 30;
+  if (req.query.limit != undefined) {
+      limit = parseInt(req.query.limit);
+  }
+  if (isNaN(limit)) {
+      var err = new Error('limit must be of type int');
+      res.status(400).json({ error: err.toString() });
+  }
+  if (limit > 30) {
+      var err = new Error('Over limit request');
+      res.status(400).json({ error: err.toString() });
   }
   if (hashtag) {
       const morsels = await Morsel.find({'hashtag': hashtag}).sort({date: 'desc'}).limit(limit);
