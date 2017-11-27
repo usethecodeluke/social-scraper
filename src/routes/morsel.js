@@ -7,6 +7,8 @@ import { Morsel, Cron } from 'models';
 
 import { refreshMorsels } from '../utils';
 
+import { checkRecaptcha } from '../utils';
+
 const router = new express.Router();
 
 /**
@@ -94,6 +96,11 @@ router.get('/', async (req, res) => {
  */
 router.post('/', async (req, res, next) => {
   const { hashtag, service, username, content, apiId } = req.body;
+  if (! checkRecaptcha(req)) {
+      // bad recaptcha
+      var err = new Error('failed to verify recaptcha');
+      return res.status(400).json({ error: err.toString() });
+  }
   try {
     let morsel = new Morsel({
       hashtag,
