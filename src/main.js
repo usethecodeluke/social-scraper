@@ -20,10 +20,19 @@ process.on('uncaughtException', err => {
 
 const app = express();
 
-app.use(cors({
-  "origin": [/fuckyouajitpai\.com$/, "72.32.180.178"],
+var whitelist = [/fuckyouajitpai\.com$/, "72.32.180.178", "127.0.0.1", "localhost"]
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('No!'));
+    }
+  },
   "methods": "GET,HEAD,POST"
-}));
+}
+
+app.use(cors(whitelist));
 app.use(bodyParser.json({
   limit: '1mb'
 }));

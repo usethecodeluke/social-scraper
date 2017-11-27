@@ -1,4 +1,8 @@
-const env = process.env;
+const env = process.env.NODE_ENV;
+const MONGODB_USER = process.env.MONGODB_USER;
+const MONGODB_ROUTE = process.env.MONGODB_ROUTE;
+const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
+
 const common = {
   port: 8080
 };
@@ -6,14 +10,14 @@ const config = {
   develop: {
     mongodb: {
       host: '127.0.0.1',
-      database: 'example'
+      database: 'fyap'
     }
   },
   production: {
     mongodb: {
-      user: env.MONGODB_USER,
-      password: env.MONGODB_PASSWORD,
-      host: env.MONGODB_ROUTE,
+      user: MONGODB_USER,
+      password: MONGODB_PASSWORD,
+      host: MONGODB_ROUTE,
       database: 'fyap-social'
     }
   },

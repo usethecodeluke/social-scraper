@@ -1,14 +1,17 @@
 import express from 'express';
 import { Morsel, Cron } from '../models';
 
-const env = process.env;
+const CONSUMER_KEY = process.env.CONSUMER_KEY;
+const CONSUMER_SECRET = process.env.CONSUMER_SECRET;
+const BEARER_TOKEN = process.env.BEARER_TOKEN;
+
 var Twitter = require('twitter');
 
 export default async function (hashtag, id) {
     var client = new Twitter({
-        consumer_key: env.CONSUMER_KEY,
-        consumer_secret: env.CONSUMER_SECRET,
-        bearer_token: env.BEARER_TOKEN
+        consumer_key: CONSUMER_KEY,
+        consumer_secret: CONSUMER_SECRET,
+        bearer_token: BEARER_TOKEN
     });
     client.get('search/tweets', {q: hashtag, count: 100, since_id: id, result_type: 'recent'}, function(error, tweets, response) {
         try {
