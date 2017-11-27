@@ -7,6 +7,8 @@ import log from 'log';
 import config from 'config';
 import { errorHandle, db } from 'utils';
 
+const requestIp = require('request-ip');
+
 db.init();
 
 // error handle
@@ -32,6 +34,7 @@ var corsOptions = {
   "methods": "GET,HEAD,POST"
 }
 
+app.use(requestIp.mw())
 app.use(cors(whitelist));
 app.use(bodyParser.json({
   limit: '1mb'
