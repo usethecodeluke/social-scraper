@@ -1,6 +1,6 @@
 const env = process.env.NODE_ENV;
 const common = {
-  port: 8880
+  port: 8080
 };
 const config = {
   develop: {
@@ -13,7 +13,7 @@ const config = {
     mongodb: {
       user: env.MONGODB_USER,
       password: env.MONGODB_PASSWORD,
-      host: '127.0.0.1',
+      host: env.MONGODB_ROUTE,
       database: 'fyap-social'
     }
   },
