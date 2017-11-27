@@ -3,6 +3,11 @@ import log from 'log';
 import config from '../config';
 
 const { host, database, user, password } = config.mongodb;
+console.log(host);
+console.log(database);
+console.log(user);
+console.log(password);
+
 let status = 'DISCONNETED';
 
 const init = () => {
