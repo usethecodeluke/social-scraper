@@ -20,7 +20,10 @@ process.on('uncaughtException', err => {
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  "origin": [/fuckyouajitpai\.com$/, "72.32.180.178"],
+  "methods": "GET,HEAD,POST"
+}));
 app.use(bodyParser.json({
   limit: '1mb'
 }));
