@@ -7,7 +7,7 @@ const BEARER_TOKEN = process.env.BEARER_TOKEN;
 
 var Twitter = require('twitter');
 
-export default async function (hashtag, id) {
+export default async function (hashtag, id = 0) {
     var client = new Twitter({
         consumer_key: CONSUMER_KEY,
         consumer_secret: CONSUMER_SECRET,
@@ -16,24 +16,17 @@ export default async function (hashtag, id) {
     client.get('search/tweets', {q: hashtag, count: 100, since_id: id, result_type: 'recent'}, function(error, tweets, response) {
         try {
             tweets.statuses.forEach(function(tweet) {
-                try {
-                    let morsel = new Morsel();
-                    morsel.hashtag = hashtag;
-                    morsel.service = 'twitter';
-                    morsel.content = tweet.text;
-                    morsel.apiId = tweet.id_str;
-                    morsel.save();
-                } catch (err) {
-                    console.log(err);
-                    return;
-                }
-            });
-            Cron.findOneAndUpdate({'hashtag': hashtag}, {'last_id': tweets.search_metadata.max_id_str}, {new:true, upsert:true}, function() {
-                console.log('refresh complete! new id: ' + tweets.search_metadata.max_id_str);
+                Morsel.create({
+                    hashtag: hashtag,
+                    service: 'twitter',
+                    content: tweet.text,
+                    apiId: tweet.id_str
+                });
             });
         } catch(err) {
-            console.log("Connection Failure");
+            console.log(err);
             return;
         }
+        return tweets.search_metadata.max_id_str;
     });
 }

@@ -1,21 +1,23 @@
-import mongoose from 'mongoose';
+var dynamo = require('dynamodb');
+var Joi = require('joi');
 
-const Schema = mongoose.Schema;
-const MorselSchema = new Schema({
-  hashtag: { type: String, default: "None" },
-  service: { type: String, default: "local" },
-  username: { type: String, default: "Anonymous" },
-  content: { type: String, default: "" },
-  apiId: { type: String, default: "None" },
-  date: { type: Date, default: Date.now }
+const Morsel = dynamo.define('Morsel', {
+  hashKey : 'hashtag',
+  rangeKey : 'uuid',
+  timestamps : true,
+  schema : {
+    uuid : dynamo.types.uuid(),
+    hashtag   : Joi.string().default('None'),
+    service   : Joi.string().default('local'),
+    name   : Joi.string().default('Anonymous'),
+    email   : Joi.string().email().default(''),
+    content : Joi.binary(),
+    apiId   : Joi.string().default('None')
+  },
+  indexes : [{
+    hashkey : 'hashtag', rangekey : 'createdAt', type : 'local', name : 'createdAtIndex'
+  }]
 });
-
-MorselSchema.options.toJSON = MorselSchema.options.toJSON || {};
-MorselSchema.options.toJSON.transform = (doc, ret) => {
-  return ret;
-};
-
-const Morsel = mongoose.model('morsel', MorselSchema);
 
 /**
  * @swagger
@@ -24,7 +26,7 @@ const Morsel = mongoose.model('morsel', MorselSchema);
  *     type: object
  *     properties:
  *       _id:
- *         type: string
+ *         type: UUID
  *         default: objectId
  *       hashtag:
  *         type: string
@@ -32,18 +34,24 @@ const Morsel = mongoose.model('morsel', MorselSchema);
  *       service:
  *         type: string
  *         default: local
- *       username:
+ *       name:
  *         type: string
  *         default: Anonymous
+ *       email:
+ *         type: email
+ *         default: None
  *       content:
- *         type: string
+ *         type: binary
  *         default: None
  *       apiId:
  *         type: string
  *         default: None
- *       date:
+ *       createdAt:
  *         type: Date
  *         default: now
+ *       updatedAt:
+ *         type: Date
+ *         default: undefined
  */
 
 export default Morsel;

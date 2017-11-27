@@ -1,33 +1,24 @@
-import mongoose from 'mongoose';
+var dynamo = require('dynamodb');
+
+import { Morsel, Cron } from '../models';
 import log from 'log';
 import config from '../config';
 
-const { host, database, user, password } = config.mongodb;
-
-let status = 'DISCONNETED';
+const { region, akid, secret } = config.dynamodb;
+dynamo.AWS.config.update({
+    accessKeyId: akid,
+    secretAccessKey: secret,
+    region: region
+});
 
 const init = () => {
-  if (status === 'DISCONNETED') {
-    let mongoUrl = `mongodb://${host}/${database}`;
-    if (user && password) {
-      mongoUrl = `mongodb://${user}:${password}@${host}:27017/${database}`;
-    }
-    mongoose.connect(mongoUrl);
-    status = 'CONNECTING';
-    const db = mongoose.connection;
-    return new Promise((resolve, reject) => {
-      db.on('error', err => {
-        status = 'DISCONNETED';
-        log.error(err);
-        reject(err);
-      });
-      db.once('open', () => {
-        status = 'CONNECTED';
-        log.info('Database connected');
-        resolve();
-      });
+    dynamo.createTables(function(err) {
+        if (err) {
+            console.log('Error creating tables: ', err);
+        } else {
+            console.log('Tables has been created');
+        }
     });
-  }
 };
 
-export default { init };
+export { init };

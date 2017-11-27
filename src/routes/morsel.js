@@ -1,13 +1,10 @@
 import express from 'express';
 import sha1 from 'sha1';
 import randomstring from 'randomstring';
+
 import { log } from '../log';
-
 import { Morsel, Cron } from 'models';
-
-import { refreshMorsels } from '../utils';
-
-import { checkRecaptcha } from '../utils';
+import { refreshMorsels, checkRecaptcha } from '../utils';
 
 const router = new express.Router();
 
@@ -44,18 +41,26 @@ router.get('/', async (req, res) => {
       var err = new Error('Over limit request');
       res.status(400).json({ error: err.toString() });
   }
-  if (hashtag) {
-      const morsels = await Morsel.find({'hashtag': hashtag}).sort({date: 'desc'}).limit(limit);
-      const now = Date.now();
-      let cron = await Cron.find({'hashtag': hashtag});
-      if ((!cron.length) || (now - cron[0].date >= 120000)) {
-          cron = await Cron.findOneAndUpdate({'hashtag': hashtag}, {'date':Date.now()}, {new:true, upsert:true});
-          refreshMorsels(hashtag, cron.last_id);
+  const morsels = await Morsel
+      .query(hashtag)
+      .usingIndex('createdAtIndex')
+      .descending()
+      .limit()
+      .exec();
+  const now = Date.now();
+  Cron.get(hashtag, function(err, cron) {
+      if (err) {
+          console.log(err);
       }
-      return res.send(morsels);
-  }
-  const morsels = await Morsel.find().limit(limit);
-  return res.send({ morsels });
+      if ((cron.createdAt == undefined) || (now - cron.createdAt >= 120000)) {
+          refreshMorsels(hashtag, cron.last_id).then(function(last_id){
+              Cron.create({hashtag: hashtag, last_id: last_id}, function(err, cron) {
+                  console.log('refresh complete! new id: ', cron.last_id);
+              });
+          });
+      }
+  });
+  return res.send(morsels);
 });
 
 
@@ -101,18 +106,18 @@ router.post('/', async (req, res, next) => {
       var err = new Error('failed to verify recaptcha');
       return res.status(400).json({ error: err.toString() });
   }
-  try {
-    let morsel = new Morsel({
-      hashtag,
-      service,
-      username,
-      content,
-      apiId
-    });
-    morsel = await morsel.save();
-    return res.send(201);
-  } catch (err) {
-    next(err);
-  }
+  Morsel.create({
+    hashtag: hashtag,
+    service: service,
+    username: username,
+    content: content,
+    apiId: apiId
+    },
+    function(err, morsel) {
+      if (err) {
+          return next(err);
+      }
+      return res.send(201);
+  });
 });
 export default router;

@@ -1,31 +1,14 @@
-const env = process.env.NODE_ENV;
-const MONGODB_USER = process.env.MONGODB_USER;
-const MONGODB_ROUTE = process.env.MONGODB_ROUTE;
-const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
+const AWS_KEY = process.env.AWS_KEY;
+const AWS_SECRET = process.env.AWS_SECRET;
+const AWS_REGION = process.env.AWS_REGION;
 
 const common = {
   port: 8080
 };
-const config = {
-  develop: {
-    mongodb: {
-      host: '127.0.0.1',
-      database: 'fyap'
-    }
-  },
-  production: {
-    mongodb: {
-      user: MONGODB_USER,
-      password: MONGODB_PASSWORD,
-      host: MONGODB_ROUTE,
-      database: 'fyap-social'
-    }
-  },
-  test: {
-    mongodb: {
-      host: '127.0.0.1',
-      database: 'example-test'
-    }
-  }
+const dynamodb = {
+    region: AWS_REGION,
+    akid: AWS_KEY,
+    secret: AWS_SECRET
 };
-export default Object.assign(common, config[env]);
+
+export default Object.assign(common, dynamodb);
