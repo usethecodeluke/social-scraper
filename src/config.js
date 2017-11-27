@@ -1,4 +1,4 @@
-const env = process.env.NODE_ENV;
+const env = process.env;
 const common = {
   port: 8080
 };

@@ -1,7 +1,7 @@
 import express from 'express';
 import { Morsel, Cron } from '../models';
 
-const env = process.env.NODE_ENV;
+const env = process.env;
 var Twitter = require('twitter');
 
 export default async function (hashtag, id) {
