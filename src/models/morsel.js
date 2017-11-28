@@ -9,10 +9,10 @@ const Morsel = dynamo.define('Morsel', {
     uuid : dynamo.types.uuid(),
     hashtag   : Joi.string().default('None'),
     service   : Joi.string().default('local'),
-    name   : Joi.string().default('Anonymous'),
-    email   : Joi.string().email().default(''),
-    content : Joi.binary(),
-    apiId   : Joi.string().default('None')
+    name   : Joi.string().optional(),
+    email   : Joi.string().email().optional(),
+    content : Joi.string().default('None'),
+    apiId   : Joi.string().optional()
   },
   indexes : [{
     hashKey : 'hashtag', rangeKey : 'createdAt', type : 'local', name : 'createdAtIndex'
