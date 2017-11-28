@@ -7,13 +7,14 @@ const BEARER_TOKEN = process.env.BEARER_TOKEN;
 
 var Twitter = require('twitter');
 
-export default async function (hashtag, id = 0) {
+export default async function (hashtag, cron) {
+    var cron = cron || {id:0};
     var client = new Twitter({
         consumer_key: CONSUMER_KEY,
         consumer_secret: CONSUMER_SECRET,
         bearer_token: BEARER_TOKEN
     });
-    client.get('search/tweets', {q: hashtag, count: 100, since_id: id, result_type: 'recent'}, function(error, tweets, response) {
+    await client.get('search/tweets', {q: hashtag, count: 100, since_id: cron.id, result_type: 'recent'}, function(error, tweets, response) {
         try {
             tweets.statuses.forEach(function(tweet) {
                 Morsel.create({

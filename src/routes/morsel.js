@@ -1,6 +1,7 @@
 import express from 'express';
 import sha1 from 'sha1';
 import randomstring from 'randomstring';
+const uuidv1 = require('uuid/v1');
 
 import { log } from '../log';
 import { Morsel, Cron } from 'models';
@@ -52,10 +53,10 @@ router.get('/', async (req, res) => {
       if (err) {
           console.log(err);
       }
-      if ((cron.createdAt == undefined) || (now - cron.createdAt >= 120000)) {
-          refreshMorsels(hashtag, cron.last_id).then(function(last_id){
-              Cron.create({hashtag: hashtag, last_id: last_id}, function(err, cron) {
-                  console.log('refresh complete! new id: ', cron.last_id);
+      if ((cron == undefined) || (now - cron.createdAt >= 120000)) {
+          refreshMorsels(hashtag, cron).then(function(last_id){
+              Cron.create({hashtag: hashtag, last_id: last_id}, function(err, new_cron) {
+                  console.log('refresh complete! new id: ', new_cron.last_id);
               });
           });
       }
@@ -107,6 +108,7 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: err.toString() });
   }
   Morsel.create({
+    uuid: uuidv1(),
     hashtag: hashtag,
     service: service,
     username: username,

@@ -1,4 +1,4 @@
-var dynamo = require('dynamodb');
+import * as dynamo from 'dynamodb';
 var Joi = require('joi');
 
 const Morsel = dynamo.define('Morsel', {
@@ -15,7 +15,7 @@ const Morsel = dynamo.define('Morsel', {
     apiId   : Joi.string().default('None')
   },
   indexes : [{
-    hashkey : 'hashtag', rangekey : 'createdAt', type : 'local', name : 'createdAtIndex'
+    hashKey : 'hashtag', rangeKey : 'createdAt', type : 'local', name : 'createdAtIndex'
   }]
 });
 

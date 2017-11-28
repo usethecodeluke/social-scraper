@@ -1,4 +1,4 @@
-var dynamo = require('dynamodb');
+import * as dynamo from 'dynamodb';
 var Joi = require('joi');
 
 const Cron = dynamo.define('Cron', {
