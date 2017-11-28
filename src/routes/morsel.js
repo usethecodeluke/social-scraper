@@ -1,13 +1,11 @@
 import express from 'express';
 import sha1 from 'sha1';
 import randomstring from 'randomstring';
+const uuidv1 = require('uuid/v1');
+
 import { log } from '../log';
-
 import { Morsel, Cron } from 'models';
-
-import { refreshMorsels } from '../utils';
-
-import { checkRecaptcha } from '../utils';
+import { refreshMorsels, checkRecaptcha } from '../utils';
 
 const router = new express.Router();
 
@@ -30,7 +28,7 @@ const router = new express.Router();
  *               items:
  *                 $ref: '#/definitions/Morsel'
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   const hashtag = 'fuckyouajitpai';
   let limit = 30;
   if (req.query.limit != undefined) {
@@ -38,24 +36,39 @@ router.get('/', async (req, res) => {
   }
   if (isNaN(limit)) {
       var err = new Error('limit must be of type int');
-      res.status(400).json({ error: err.toString() });
+      return next(err);
   }
   if (limit > 30) {
       var err = new Error('Over limit request');
-      res.status(400).json({ error: err.toString() });
+      return next(err);
   }
-  if (hashtag) {
-      const morsels = await Morsel.find({'hashtag': hashtag}).sort({date: 'desc'}).limit(limit);
-      const now = Date.now();
-      let cron = await Cron.find({'hashtag': hashtag});
-      if ((!cron.length) || (now - cron[0].date >= 120000)) {
-          cron = await Cron.findOneAndUpdate({'hashtag': hashtag}, {'date':Date.now()}, {new:true, upsert:true});
-          refreshMorsels(hashtag, cron.last_id);
+  await Morsel
+      .query(hashtag)
+      .usingIndex('createdAtIndex')
+      .descending()
+      .limit(limit)
+      .exec( function(err, morsels) {
+          if (err) {
+              return next(err);
+          }
+          return res.send(morsels);
+      });
+  const now = Date.now();
+  Cron.get(hashtag, async function(err, cron) {
+      if (err) {
+          console.log(err);
       }
-      return res.send(morsels);
-  }
-  const morsels = await Morsel.find().limit(limit);
-  return res.send({ morsels });
+      if ((cron == undefined) || (now - cron.createdAt >= 120000)) {
+          let last_id = await refreshMorsels(hashtag, cron);
+          Cron.create({hashtag: hashtag, lastId: last_id}, function(err, new_cron) {
+              if (err) {
+                  console.log(err);
+                  return;
+              }
+              console.log('refresh complete! new id: ', last_id);
+          });
+      }
+  });
 });
 
 
@@ -95,24 +108,25 @@ router.get('/', async (req, res) => {
  *         description: create new user
  */
 router.post('/', async (req, res, next) => {
-  const { hashtag, service, username, content, apiId } = req.body;
+  const { hashtag, service, name, email, content, apiId } = req.body;
   if (! checkRecaptcha(req)) {
       // bad recaptcha
       var err = new Error('failed to verify recaptcha');
-      return res.status(400).json({ error: err.toString() });
+      return next(err)
   }
-  try {
-    let morsel = new Morsel({
-      hashtag,
-      service,
-      username,
-      content,
-      apiId
-    });
-    morsel = await morsel.save();
-    return res.send(201);
-  } catch (err) {
-    next(err);
-  }
+  Morsel.create({
+    hashtag: hashtag,
+    service: service,
+    email: email,
+    name: name,
+    content: content,
+    apiId: apiId
+    },
+    function(err, morsel) {
+      if (err) {
+          return next(err);
+      }
+      return res.sendStatus(201);
+  });
 });
 export default router;

@@ -1,16 +1,13 @@
-import mongoose from 'mongoose';
+import * as dynamo from 'dynamodb';
+var Joi = require('joi');
 
-const Schema = mongoose.Schema;
-const CronSchema = new Schema({
-  hashtag: { type: String, default: "None" },
-  last_id: { type: String, default: "0"},
-  date: { type: Date, default: Date.now }
+const Cron = dynamo.define('Cron', {
+  hashKey : 'hashtag',
+  timestamps : true,
+  schema : {
+    hashtag   : Joi.string().default('None'),
+    lastId   : Joi.string().default('0')
+  }
 });
 
-CronSchema.options.toJSON = CronSchema.options.toJSON || {};
-CronSchema.options.toJSON.transform = (doc, ret) => {
-  return ret;
-};
-
-const Cron = mongoose.model('cron', CronSchema);
 export default Cron;
