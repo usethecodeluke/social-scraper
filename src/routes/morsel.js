@@ -38,7 +38,7 @@ router.get('/', async (req, res, next) => {
       var err = new Error('limit must be of type int');
       return next(err);
   }
-  if (limit > 30) {
+  if (limit > 50) {
       var err = new Error('Over limit request');
       return next(err);
   }
@@ -54,12 +54,21 @@ router.get('/', async (req, res, next) => {
           return res.send(morsels);
       });
   const now = Date.now();
+  let cronDate = undefined;
+  let id = 1;
   Cron.get(hashtag, async function(err, cron) {
       if (err) {
           console.log(err);
       }
-      if ((cron == undefined) || (now - cron.createdAt >= 120000)) {
-          let last_id = await refreshMorsels(hashtag, cron);
+      try {
+          cronDate = cron.get('createdAt');
+          cronDate = new Date(cronDate);
+          id = cron.get('lastId');
+      } catch(err) {
+          console.log(err);
+      }
+      if ((cron == undefined) || (now - cronDate >= 120000)) {
+          let last_id = await refreshMorsels(hashtag, id);
           Cron.create({hashtag: hashtag, lastId: last_id}, function(err, new_cron) {
               if (err) {
                   console.log(err);
@@ -109,16 +118,16 @@ router.get('/', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
   const { hashtag, service, name, email, content, apiId } = req.body;
-  if (! checkRecaptcha(req)) {
-      // bad recaptcha
-      var err = new Error('failed to verify recaptcha');
-      return next(err)
-  }
+  //let cap = await checkRecaptcha(req.body['g-recaptcha-response'], req.clientIp);
+  //if (!cap) {
+//      var err = new Error('failed to verify recaptcha');
+//      return next(err);
+//  }
   Morsel.create({
     hashtag: hashtag,
     service: service,
-    email: email,
     name: name,
+    email: email,
     content: content,
     apiId: apiId
     },
