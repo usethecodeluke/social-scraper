@@ -7,12 +7,12 @@ const Morsel = dynamo.define('Morsel', {
   timestamps : true,
   schema : {
     uuid : dynamo.types.uuid(),
-    hashtag   : Joi.string().default('None'),
-    service   : Joi.string().default('local'),
-    name   : Joi.string().optional(),
-    email   : Joi.string().email().optional(),
-    content : Joi.string().default('None'),
-    apiId   : Joi.string().optional()
+    hashtag   : Joi.string(),
+    service   : Joi.string().empty('').default('local'),
+    name   : Joi.string().empty('').default('anonymous'),
+    email   : Joi.string().email().allow(''),
+    content : Joi.string().max(250).truncate(),
+    apiId   : Joi.string().allow('')
   },
   indexes : [{
     hashKey : 'hashtag', rangeKey : 'createdAt', type : 'local', name : 'createdAtIndex'

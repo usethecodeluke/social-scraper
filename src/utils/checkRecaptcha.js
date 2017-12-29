@@ -8,8 +8,8 @@ let recaptcha = new reCAPTCHA({
   secretKey:RECAPTCHA_SECRET_KEY
 })
 
-export default function (req) {
-    recaptcha.validateRequest(req, req.clientIp)
+export default function (key, ip) {
+    return recaptcha.validate(key, ip)
         .then(function(){
             // validated :thumbsup:
             return true;

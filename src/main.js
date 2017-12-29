@@ -36,9 +36,7 @@ var corsOptions = {
 
 app.use(requestIp.mw())
 app.use(cors(whitelist));
-app.use(bodyParser.json({
-  limit: '1mb'
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', routes);
 
